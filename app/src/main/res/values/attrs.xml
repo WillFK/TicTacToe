@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="tileBackgroundColor" format="reference"/>
+    <attr name="xShapeColor" format="reference"/>
+    <attr name="oShapeColor" format="reference"/>
+    <attr name="playerTagColorRegular" format="reference"/>
+    <attr name="playerTagColorHighlighted" format="reference"/>
+</resources>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.App.Light"
+           parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="tileBackgroundColor">@color/black_100</item>
+        <item name="xShapeColor">@color/blue</item>
+        <item name="oShapeColor">@color/red</item>
+        <item name="playerTagColorRegular">@color/black_100</item>
+        <item name="playerTagColorHighlighted">@color/yellow</item>
+    </style>
+
+    <style name="Theme.App.Dark"
+           parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="tileBackgroundColor">@color/black_100</item>
+        <item name="xShapeColor">@color/red</item>
+        <item name="oShapeColor">@color/blue</item>
+        <item name="playerTagColorRegular">@color/white_100</item>
+        <item name="playerTagColorHighlighted">@color/yellow</item>
+    </style>
+</resources>
