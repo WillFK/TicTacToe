@@ -1,13 +1,15 @@
-package fk.home.tictactoe
+package fk.home.tictactoe.ui.game
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import fk.home.tictactoe.ui.game.GameFragment
+import androidx.appcompat.app.AppCompatActivity
+import fk.home.tictactoe.R
+import fk.home.tictactoe.ui.utils.applyTheme
 
-class MainActivity : AppCompatActivity() {
+class GameActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        applyTheme()
         setContentView(R.layout.activity_main)
         openGame()
     }

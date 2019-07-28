@@ -6,11 +6,13 @@ import fk.home.tictactoe.game.MoveResult
 import fk.home.tictactoe.game.TicTacToe
 import fk.home.tictactoe.player.Player
 import fk.home.tictactoe.player.RandomAI
+import fk.home.tictactoe.repository.IPlayerRepository
 import fk.home.tictactoe.ui.Presenter
+import java.util.*
 import kotlin.random.Random
 
 
-class GamePresenter : Presenter<GameView>() {
+class GamePresenter(private val playerRepository: IPlayerRepository) : Presenter<GameView>() {
 
     private val game = TicTacToe()
     private lateinit var playerX : Player
@@ -18,12 +20,59 @@ class GamePresenter : Presenter<GameView>() {
     private lateinit var currentPlayer: Player
     private var turnControl = 0
     private var readHumanInput = false
+    private var timerCounter = 0L
+    private var timer: Timer? = null
+    private var lastTimeReading = 0L
+    private var timerIsRunning = false
 
     fun startGame() {
         AsyncTask.execute {
+            turnControl = 0
+            readHumanInput = false
             assignPlayers()
+            preparetimer()
             game.prepareNewGame().let {
+                view?.updateGame(it.state)
                 prepareForPlayerInput(it.state)
+            }
+        }
+    }
+
+    private fun getFormattedTime():String {
+        val minutes = timerCounter / (1000*60)
+        val seconds = (timerCounter % (1000*60)) / 1000
+        val milliseconds = timerCounter % 1000
+        return "%02d:%02d:%03d".format(minutes, seconds, milliseconds)
+    }
+
+    private fun updateTimer() {
+        val currentTime = System.currentTimeMillis()
+        val diff = currentTime - lastTimeReading
+        timerCounter += diff
+        lastTimeReading = currentTime
+        view?.updateTimer(getFormattedTime())
+    }
+
+    private fun preparetimer() {
+        timerCounter = 0
+        view?.updateTimer(getFormattedTime())
+    }
+
+    private fun stopTimer() {
+        timer?.cancel()
+        timerIsRunning = false
+    }
+
+    private fun resumeTimer() {
+        if (!timerIsRunning) {
+            lastTimeReading = System.currentTimeMillis()
+            timerIsRunning = true
+            timer = Timer().apply {
+                this.scheduleAtFixedRate(object : TimerTask() {
+                    override fun run() {
+                        updateTimer()
+                    }
+                }, 0, TIMER_RATE)
             }
         }
     }
@@ -48,11 +97,13 @@ class GamePresenter : Presenter<GameView>() {
 
     private fun handleHumanTurn() {
         readHumanInput = true
+        resumeTimer()
     }
 
     private fun handleAiTurn(player: Player.AI, state: IntArray) {
         readHumanInput = false
         view?.displayWaitingForAiMessage()
+        stopTimer()
         val move = player.findMove(state)
         val result = game.makeMove(move)
         view?.dismissWaitingForAiMessage()
@@ -71,11 +122,11 @@ class GamePresenter : Presenter<GameView>() {
     private fun assignPlayers() {
         //In the future I'd like to implement it in a way where both players could be Humans.
         if (Random.nextInt() % 2 == 0) {
-            playerX = Player.Human("Human") // TODO
+            playerX = Player.Human(playerRepository.getPlayerName() ?: "Player")
             playerO = RandomAI()
         } else {
             playerX = RandomAI()
-            playerO = Player.Human("Human") //TODO
+            playerO = Player.Human(playerRepository.getPlayerName() ?: "Player")
         }
 
         view?.setupPlayerTags(playerX.name, playerO.name)
@@ -101,14 +152,21 @@ class GamePresenter : Presenter<GameView>() {
                 endTurn(result.state)
             }
             is MoveResult.GameOver.Draw -> {
+                stopTimer()
                 view?.updateGame(result.state)
                 view?.displayGameDrawn()
             }
             is MoveResult.GameOver.Victory -> {
+                stopTimer()
                 view?.updateGame(result.state)
                 println(result.state)
-                view?.displayVictory(result.side.name)
+                view?.displayVictory(currentPlayer.name)
             }
         }
+    }
+
+    private companion object {
+
+        const val TIMER_RATE = 10L
     }
 }

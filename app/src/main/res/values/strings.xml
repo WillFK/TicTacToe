@@ -1,6 +1,16 @@
 <resources>
     <string name="app_name">TicTacToe</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="game_ai_waiting_title">Calculating…</string>
+    <string name="game_ai_waiting_text">Waiting for AI to find the best move</string>
+    <string name="check_dark_mode">Dark Mode</string>
+    <string name="button_start_game">Start Game</string>
+    <string name="button_change_name">Change Name</string>
+    <string name="greetings">Hello, %s</string>
+    <string name="config_error_msg">Unable to save configuration. Please, try again.</string>
+    <string name="game_restart_match">Restart Match</string>
+    <string name="game_broken">Oops, something went wrong with the game! please, restart match.</string>
+    <string name="game_over_play_another_match">Play another match</string>
+    <string name="game_over_victory">Match is over!\n%s wins!</string>
+    <string name="game_over_draw">Match is over!\nIt\'s a draw!</string>
 </resources>

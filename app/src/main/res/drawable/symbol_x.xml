@@ -4,7 +4,7 @@
         <rotate
                 android:fromDegrees="-45">
             <shape android:shape="line">
-                <stroke android:width="10dp" android:color="?attr/xShapeColor" />
+                <stroke android:width="10dp" android:color="@color/blue" />
             </shape>
         </rotate>
     </item>
@@ -12,7 +12,7 @@
         <rotate
                 android:fromDegrees="45">
             <shape android:shape="line">
-                <stroke android:width="10dp" android:color="?attr/xShapeColor" />
+                <stroke android:width="10dp" android:color="@color/blue" />
             </shape>
         </rotate>
     </item>

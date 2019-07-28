@@ -12,10 +12,11 @@ interface GameView {
 
     fun displayVictory(player: String)
 
-    //Something went wrong and players should restart game
     fun displayGameBroken()
 
     fun displayWaitingForAiMessage()
 
     fun dismissWaitingForAiMessage()
+
+    fun updateTimer(formattedTime: String)
 }

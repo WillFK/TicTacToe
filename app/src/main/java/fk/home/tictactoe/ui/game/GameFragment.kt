@@ -1,6 +1,9 @@
 package fk.home.tictactoe.ui.game
 
 import android.annotation.SuppressLint
+import android.app.Dialog
+import android.app.ProgressDialog
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,7 +16,11 @@ import fk.home.tictactoe.game.GameValues
 import kotlinx.android.synthetic.main.fragment_game.*
 import androidx.annotation.ColorInt
 import android.util.TypedValue
+import android.widget.Toast
 import androidx.core.content.ContextCompat
+import fk.home.tictactoe.repository.PlayerRepository
+import fk.home.tictactoe.storage.LocalPreferencesStorage
+import fk.home.tictactoe.ui.game_over.GameOverActivity
 
 
 class GameFragment : Fragment(), GameView {
@@ -24,19 +31,20 @@ class GameFragment : Fragment(), GameView {
         R.id.tile3x1, R.id.tile3x2, R.id.tile3x3)
 
     private var presenter: GamePresenter? = null
+    private var aiWaitingDialog: Dialog? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val rootView = inflater.inflate(R.layout.fragment_game, container, false)
-        presenter = GamePresenter().apply { this.attach(this@GameFragment) }
-        return rootView
+        return inflater.inflate(R.layout.fragment_game, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupUi()
+        //Ideally, there should be some DI happening here
+        presenter = GamePresenter(PlayerRepository(LocalPreferencesStorage(view.context))).apply { this.attach(this@GameFragment) }
         presenter?.startGame()
     }
 
@@ -49,13 +57,37 @@ class GameFragment : Fragment(), GameView {
             val tile = ticTacToeGame?.findViewById<View>(i)
             tile?.setOnClickListener { presenter?.readHumanMove(index) }
         }
+        gameRestart.setOnClickListener { presenter?.startGame() }
     }
+
     override fun displayGameDrawn() {
-        Log.d("FKZ", "game drawn")
+        activity?.let { activity ->
+            startActivityForResult(Intent(activity, GameOverActivity::class.java), GAME_OVER_REQUEST_CODE)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (requestCode) {
+            GAME_OVER_REQUEST_CODE -> processResultGameOver(data)
+        }
+    }
+
+    private fun processResultGameOver(data: Intent?) {
+        val rematch = data?.getBooleanExtra(GameOverActivity.RESULT_REMATCH, false) ?: false
+        if (rematch) {
+            presenter?.startGame()
+        }
     }
 
     override fun displayVictory(player: String) {
-        Log.d("FKZ", "victory: $player")
+        activity?.let { activity ->
+            val intent = Intent(activity, GameOverActivity::class.java)
+            val data = Bundle()
+            data.putString(GameOverActivity.PARAM_WINNER, player)
+            intent.putExtras(data)
+            startActivityForResult(intent, GAME_OVER_REQUEST_CODE)
+        }
     }
 
     /**
@@ -66,55 +98,97 @@ class GameFragment : Fragment(), GameView {
         state.forEachIndexed { index, i ->
             ticTacToeGame?.findViewById<ImageView>(tilesId[index])?.let { tile ->
                 when (i) {
-                    GameValues.EMPTY.cellValue -> { tile.setImageResource(0) }
-                    GameValues.X.cellValue -> { tile.setImageResource(R.drawable.symbol_x) }
-                    GameValues.O.cellValue -> { tile.setImageResource(R.drawable.symbol_o) }
+                    GameValues.EMPTY.cellValue -> {
+                        updateCell(tile, 0)
+                    }
+                    GameValues.X.cellValue -> {
+                        updateCell(tile, R.drawable.x)
+                    }
+                    GameValues.O.cellValue -> {
+                        updateCell(tile, R.drawable.o)
+                    }
                 }
             }
         }
     }
 
+    private fun updateCell(tile: ImageView, symbolId: Int) {
+        activity?.runOnUiThread {
+            tile.setImageResource(symbolId)
+        }
+    }
+
     override fun dismissWaitingForAiMessage() {
-        //TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        activity?.runOnUiThread {
+            aiWaitingDialog?.dismiss()
+        }
     }
 
     override fun displayGameBroken() {
-        //TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        activity?.let {
+            Toast.makeText(it, R.string.game_broken, Toast.LENGTH_LONG).show()
+        }
     }
 
     override fun displayWaitingForAiMessage() {
-        //TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        activity?.let { activity ->
+            activity.runOnUiThread {
+                /*
+                    despite being deprecated (because it's not the way of waiting for an action)
+                    it does what is was required for the challenge, so I thought it would be ok to use it here.
+                 */
+                ProgressDialog(activity).apply {
+                    setTitle(R.string.game_ai_waiting_title)
+                    setMessage(getString(R.string.game_ai_waiting_text))
+                    isIndeterminate = true
+                    aiWaitingDialog = this
+                }.show()
+            }
+        }
     }
 
     @SuppressLint("SetTextI18n")
     override fun setupPlayerTags(nameX: String, nameO: String) {
-        Log.d("FKZ", "setupPlayers names $nameX $nameO")
-        playerXTag.text = "$nameX: X"
-        playerOTag.text = "$nameO: O"
+        activity?.runOnUiThread {
+            playerXTag.text = "$nameX: X"
+            playerOTag.text = "$nameO: O"
+        }
     }
 
     override fun updatePlayerTags(highlightX: Boolean, highlightO: Boolean) {
-        context?.let { context ->
-            val theme = context.theme
+        activity?.runOnUiThread {
+            context?.let { context ->
+                val theme = context.theme
 
-            val typedValue = TypedValue()
-            theme.resolveAttribute(R.attr.playerTagColorRegular, typedValue, true)
-            @ColorInt val colorRegular = typedValue.data
+                val typedValue = TypedValue()
+                theme.resolveAttribute(R.attr.playerTagColorRegular, typedValue, true)
+                @ColorInt val colorRegular = typedValue.data
 
-            theme.resolveAttribute(R.attr.playerTagColorHighlighted, typedValue, true)
-            @ColorInt val colorHighlighted = typedValue.data
+                theme.resolveAttribute(R.attr.playerTagColorHighlighted, typedValue, true)
+                @ColorInt val colorHighlighted = typedValue.data
 
-            if (highlightX) {
-                playerXTag.setTextColor(colorHighlighted)
-            } else {
-                playerXTag.setTextColor(colorRegular)
-            }
+                if (highlightX) {
+                    playerXTag.setTextColor(colorHighlighted)
+                } else {
+                    playerXTag.setTextColor(colorRegular)
+                }
 
-            if (highlightO) {
-                playerOTag.setTextColor(colorHighlighted)
-            } else {
-                playerOTag.setTextColor(colorRegular)
+                if (highlightO) {
+                    playerOTag.setTextColor(colorHighlighted)
+                } else {
+                    playerOTag.setTextColor(colorRegular)
+                }
             }
         }
+    }
+
+    override fun updateTimer(formattedTime: String) {
+        activity?.runOnUiThread {
+            gameTimer?.text = formattedTime
+        }
+    }
+
+    private companion object {
+        const val GAME_OVER_REQUEST_CODE = 42
     }
 }

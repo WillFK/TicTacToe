@@ -1,26 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.App.Light"
-           parent="Theme.AppCompat.Light.DarkActionBar">
+           parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="tileBackgroundColor">@color/black_100</item>
+        <item name="tileBackgroundColor">@color/colorPrimaryDark</item>
+        <item name="android:textColorPrimary">@color/black_100</item>
         <item name="xShapeColor">@color/blue</item>
         <item name="oShapeColor">@color/red</item>
         <item name="playerTagColorRegular">@color/black_100</item>
         <item name="playerTagColorHighlighted">@color/yellow</item>
+        <item name="android:background">@color/light_grey</item>
     </style>
 
     <style name="Theme.App.Dark"
-           parent="Theme.AppCompat.Light.DarkActionBar">
+           parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="tileBackgroundColor">@color/black_100</item>
+        <item name="tileBackgroundColor">@color/black_42</item>
+        <item name="android:textColorPrimary">@color/white_100</item>
         <item name="xShapeColor">@color/red</item>
         <item name="oShapeColor">@color/blue</item>
         <item name="playerTagColorRegular">@color/white_100</item>
         <item name="playerTagColorHighlighted">@color/yellow</item>
+        <item name="android:background">@color/black_24</item>
     </style>
+
+    <style name="Theme.App.Light.Dialog" parent="Theme.AppCompat.Light.Dialog">
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowAnimationStyle">@style/SlideDialogAnimation</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="tileBackgroundColor">@color/colorPrimaryDark</item>
+        <item name="android:textColorPrimary">@color/black_100</item>
+        <item name="xShapeColor">@color/blue</item>
+        <item name="oShapeColor">@color/red</item>
+        <item name="playerTagColorRegular">@color/black_100</item>
+        <item name="playerTagColorHighlighted">@color/yellow</item>
+        <item name="android:background">@color/light_grey</item>
+
+    </style>
+
+    <style name="Theme.App.Dark.Dialog" parent="Theme.AppCompat.Dialog">
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowAnimationStyle">@style/SlideDialogAnimation</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="tileBackgroundColor">@color/black_42</item>
+        <item name="android:textColorPrimary">@color/white_100</item>
+        <item name="xShapeColor">@color/red</item>
+        <item name="oShapeColor">@color/blue</item>
+        <item name="playerTagColorRegular">@color/white_100</item>
+        <item name="playerTagColorHighlighted">@color/yellow</item>
+        <item name="android:background">@color/black_24</item>
+    </style>
+
+    <style name="SlideDialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/slide_in_left</item>
+        <item name="android:windowExitAnimation">@anim/slide_out_left</item>
+    </style>
+
 </resources>
